@@ -16,6 +16,23 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from tracker.views import api_root
+import os
+from django.http import HttpRequest
+
+class CodespaceHostMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+        self.codespace_name = os.environ.get('CODESPACE_NAME')
+        self.codespace_host = f"{self.codespace_name}-8000.app.github.dev" if self.codespace_name else None
+
+    def __call__(self, request: HttpRequest):
+        if self.codespace_host:
+            request.META['HTTP_HOST'] = self.codespace_host
+            request.scheme = 'https'
+        return self.get_response(request)
+
+def codespace_host_middleware(get_response):
+    return CodespaceHostMiddleware(get_response)
 
 urlpatterns = [
     path('', api_root, name='api-root'),
