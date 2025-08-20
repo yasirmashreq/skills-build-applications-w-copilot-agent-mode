@@ -1,7 +1,8 @@
 
+
 from django.urls import reverse
 from rest_framework.test import APITestCase
-from .models import UserProfile, Activity, Team
+from .models import UserProfile, Activity, Team, Leaderboard, Workout
 
 class UserProfileTests(APITestCase):
 	def setUp(self):
@@ -42,5 +43,32 @@ class TeamTests(APITestCase):
 
 	def test_team_api(self):
 		url = reverse('team-list-create')
+		response = self.client.get(url)
+		self.assertEqual(response.status_code, 200)
+
+class LeaderboardTests(APITestCase):
+	def setUp(self):
+		self.user = UserProfile.objects.create(username='leaderuser', email='leader@example.com', display_name='Leader User')
+		self.leaderboard = Leaderboard.objects.create(user=self.user, score=1000, rank=1)
+
+	def test_leaderboard_created(self):
+		self.assertEqual(Leaderboard.objects.count(), 1)
+		self.assertEqual(self.leaderboard.rank, 1)
+
+	def test_leaderboard_api(self):
+		url = reverse('leaderboard-list-create')
+		response = self.client.get(url)
+		self.assertEqual(response.status_code, 200)
+
+class WorkoutTests(APITestCase):
+	def setUp(self):
+		self.workout = Workout.objects.create(name='Push Ups', description='Upper body exercise', duration_minutes=10, calories_burned=50)
+
+	def test_workout_created(self):
+		self.assertEqual(Workout.objects.count(), 1)
+		self.assertEqual(self.workout.name, 'Push Ups')
+
+	def test_workout_api(self):
+		url = reverse('workout-list-create')
 		response = self.client.get(url)
 		self.assertEqual(response.status_code, 200)

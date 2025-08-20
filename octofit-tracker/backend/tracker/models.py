@@ -1,6 +1,7 @@
 
 from django.db import models
 
+
 class UserProfile(models.Model):
 	username = models.CharField(max_length=150, unique=True)
 	email = models.EmailField(unique=True)
@@ -22,5 +23,20 @@ class Team(models.Model):
 	name = models.CharField(max_length=100, unique=True)
 	members = models.ManyToManyField(UserProfile, related_name='teams')
 	created_at = models.DateTimeField(auto_now_add=True)
+	def __str__(self):
+		return self.name
+
+class Leaderboard(models.Model):
+	user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+	score = models.PositiveIntegerField()
+	rank = models.PositiveIntegerField()
+	def __str__(self):
+		return f"{self.user.username} - Rank {self.rank}"
+
+class Workout(models.Model):
+	name = models.CharField(max_length=100)
+	description = models.TextField(blank=True)
+	duration_minutes = models.PositiveIntegerField()
+	calories_burned = models.PositiveIntegerField()
 	def __str__(self):
 		return self.name
